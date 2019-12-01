@@ -6,12 +6,12 @@
 package com.tk.CarRestApi.Domain;
 
 
-import java.io.Serializable;
-import java.util.Date;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.io.Serializable;
+import java.util.Date;
 
 @Entity
 @Table(name = "driver")
@@ -23,9 +23,8 @@ public class JpaDriver implements Serializable {
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Basic(optional = false)
     @NotNull
-    @Size(min = 1, max = 64)
     @Column(name = "driver_id", nullable = false, length = 64)
-    private String driverId;
+    private Long driverId;
 
     @Column(nullable = false)
     @Size(min = 1, max = 25)
@@ -43,7 +42,7 @@ public class JpaDriver implements Serializable {
     private String onlineStatus;
 
     @Column(nullable = false, name = "deleted")
-    private boolean deleted;
+    private boolean deleted = false;
 
     @Basic(optional = false)
     @NotNull
@@ -58,25 +57,32 @@ public class JpaDriver implements Serializable {
     @OneToOne
     private Car car;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinTable(name = "driver_role",
+            joinColumns = @JoinColumn(name = "driver_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
+    private Role role;
 
     public JpaDriver() {
     }
 
-    public JpaDriver(@NotNull @Size(min = 1, max = 64) String driverId, @Size(min = 1, max = 25) @NotNull(message = "Username can not be null!") String username, @Size(min = 1, max = 255) @NotNull(message = "Password can not be null!") String password, @NotNull(message = "online_status can not be null!") @Size(min = 1, max = 10) String onlineStatus, boolean deleted, @NotNull Date dateCreated, Date dateModified) {
-        this.driverId = driverId;
+    public JpaDriver(@Size(min = 1, max = 25) @NotNull(message = "Username can not be null!") String username, @Size(min = 1, max = 255) @NotNull(message = "Password can not be null!") String password, @NotNull(message = "online_status can not be null!") @Size(min = 1, max = 10) String onlineStatus, boolean deleted, @NotNull Date dateCreated, Date dateModified, Car car, Role role) {
         this.username = username;
         this.password = password;
         this.onlineStatus = onlineStatus;
         this.deleted = deleted;
         this.dateCreated = dateCreated;
         this.dateModified = dateModified;
+        this.car = car;
+        this.role = role;
     }
 
-    public String getDriverId() {
+    public Long getDriverId() {
         return driverId;
     }
 
-    public void setDriverId(String driverId) {
+    public void setDriverId(Long driverId) {
         this.driverId = driverId;
     }
 
@@ -128,16 +134,42 @@ public class JpaDriver implements Serializable {
         this.onlineStatus = onlineStatus;
     }
 
+    public boolean isDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted(boolean deleted) {
+        this.deleted = deleted;
+    }
+
+    public Car getCar() {
+        return car;
+    }
+
+    public void setCar(Car car) {
+        this.car = car;
+    }
+
+    public Role getRole() {
+        return role;
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
+    }
+
     @Override
     public String toString() {
         return "JpaDriver{" +
-                "driverId='" + driverId + '\'' +
+                "driverId=" + driverId +
                 ", username='" + username + '\'' +
                 ", password='" + password + '\'' +
                 ", onlineStatus='" + onlineStatus + '\'' +
                 ", deleted=" + deleted +
                 ", dateCreated=" + dateCreated +
                 ", dateModified=" + dateModified +
+                ", car=" + car +
+                ", role=" + role +
                 '}';
     }
 }
